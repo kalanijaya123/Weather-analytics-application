@@ -38,3 +38,49 @@ int CalculateComfortIndex(double tempC, int humidity, double windKmh)
     double score = tempScore * 0.55 + humScore * 0.30 + windScore * 0.15;
     return (int)Math.Clamp(Math.Round(score), 0, 100);
 }
+
+// Main endpoint (PDF: fetch, compute, rank, cache)
+app.MapGet("/api/weather", async (IMemoryCache cache) =>
+{
+    var processedKey = "processed_weather";
+    if (cache.TryGetValue(processedKey, out List<object>? cachedData))
+    {
+        cacheHits++;
+        return Results.Ok(cachedData);
+    }
+
+    cacheMisses++;
+    var results = new List<object>();
+
+    foreach (var city in cities.Take(15))
+    {
+        var rawKey = $"raw_{city.id}";
+        WeatherResponse? raw;
+
+        if (!cache.TryGetValue(rawKey, out raw))
+        {
+            cacheMisses++;
+            var url = $"https://api.openweathermap.org/data/2.5/weather?id={city.id}&appid={apiKey}&units=metric";
+            using var client = new HttpClient();
+            var json = await client.GetStringAsync(url);
+            raw = JsonSerializer.Deserialize<WeatherResponse>(json);
+            cache.Set(rawKey, raw, TimeSpan.FromMinutes(5)); // 5 min raw cache (PDF)
+        }
+        else cacheHits++;
+
+        if (raw == null) continue;
+
+        var tempC = raw.main.temp;
+        var humidity = raw.main.humidity;
+        var windKmh = raw.wind.speed * 3.6;
+        var score = CalculateComfortIndex(tempC, humidity, windKmh);
+
+        results.Add(new
+        {
+            Name = city.name,
+            Description = raw.weather[0].description,
+            Icon = raw.weather[0].icon,
+            TempC = Math.Round(tempC, 1),
+            ComfortScore = score
+        });
+    }
