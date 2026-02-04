@@ -84,3 +84,14 @@ app.MapGet("/api/weather", async (IMemoryCache cache) =>
             ComfortScore = score
         });
     }
+
+   // Rank: Most Comfortable → Least 
+    var ranked = results
+        .OrderByDescending(x => ((dynamic)x).ComfortScore)
+        .Select((item, index) => new { Item = item, Rank = index + 1 })
+        .ToList();
+
+
+    cache.Set(processedKey, ranked, TimeSpan.FromMinutes(5)); // processed cache
+    return Results.Ok(ranked);
+}); 
