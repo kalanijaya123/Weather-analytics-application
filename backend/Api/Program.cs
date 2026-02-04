@@ -95,3 +95,13 @@ app.MapGet("/api/weather", async (IMemoryCache cache) =>
     cache.Set(processedKey, ranked, TimeSpan.FromMinutes(5)); // processed cache
     return Results.Ok(ranked);
 }); 
+
+// Debug endpoint 
+app.MapGet("/api/cache-status", () => Results.Ok(new { Hits = cacheHits, Misses = cacheMisses }));
+
+app.Run();
+
+record WeatherResponse(Weather[] weather, Main main, Wind wind);
+record Weather(string description, string icon);
+record Main(double temp, int humidity);
+record Wind(double speed);
