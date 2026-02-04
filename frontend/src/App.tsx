@@ -10,7 +10,7 @@ function App() {
   useEffect(() => {
     if (isAuthenticated) {
       setLoading(true);
-      axios.get('http://localhost:5000/api/weather')
+      axios.get('http://localhost:5212/api/weather')
         .then(res => setWeather(res.data))
         .finally(() => setLoading(false));
     }
@@ -40,22 +40,22 @@ function App() {
         <main className="p-6 max-w-7xl mx-auto">
           {loading ? <p>Loading weather data...</p> : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {weather.map((w: any) => (
-                <div key={w.Item.Name} className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden">
+              {weather.filter((w: any) => w?.item).map((w: any) => (
+                <div key={w.item.name} className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden">
                   <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
                   <div className="p-6">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h2 className="text-2xl font-bold">{w.Item.Name}</h2>
-                        <p className="text-gray-500 dark:text-gray-400 capitalize">#{w.Rank} • {w.Item.Description}</p>
+                        <h2 className="text-2xl font-bold">{w.item.name}</h2>
+                        <p className="text-gray-500 dark:text-gray-400 capitalize">#{w.rank} • {w.item.description}</p>
                       </div>
-                      <img src={`https://openweathermap.org/img/wn/${w.Item.Icon}@4x.png`} alt="icon" className="w-20 h-20 -mt-4" />
+                      <img src={`https://openweathermap.org/img/wn/${w.item.icon}@4x.png`} alt="icon" className="w-20 h-20 -mt-4" />
                     </div>
 
                     <div className="mt-8 flex items-end gap-4">
-                      <div className="text-6xl font-light">{w.Item.TempC}°C</div>
+                      <div className="text-6xl font-light">{w.item.tempC}°C</div>
                       <div className="mb-2">
-                        <div className="text-5xl font-bold text-emerald-500">{w.Item.ComfortScore}</div>
+                        <div className="text-5xl font-bold text-emerald-500">{w.item.comfortScore}</div>
                         <div className="text-xs uppercase tracking-widest -mt-1">Comfort</div>
                       </div>
                     </div>
