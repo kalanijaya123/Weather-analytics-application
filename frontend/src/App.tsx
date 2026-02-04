@@ -1,35 +1,73 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useAuth0 } from '@auth0/auth0-react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { loginWithRedirect, logout, isAuthenticated, isLoading, user } = useAuth0();
+  const [weather, setWeather] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setLoading(true);
+      axios.get('http://localhost:5000/api/weather')
+        .then(res => setWeather(res.data))
+        .finally(() => setLoading(false));
+    }
+  }, [isAuthenticated]);
+
+  if (isLoading) return <div className="text-center py-20 text-2xl">Loading...</div>;
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white">
+      <header className="bg-indigo-600 p-6 flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Fidenz Weather Comfort Index</h1>
+        {isAuthenticated ? (
+          <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+            className="bg-white text-indigo-600 px-6 py-2 rounded-lg font-semibold">
+            Logout
+          </button>
+        ) : (
+          <button onClick={() => loginWithRedirect()} className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-bold text-lg">
+            Log in with Auth0
+          </button>
+        )}
+      </header>
+
+      {!isAuthenticated ? (
+        <div className="text-center py-32 text-2xl">Please log in to see the dashboard (test user: careers@fidenz.com)</div>
+      ) : (
+        <main className="p-6 max-w-7xl mx-auto">
+          {loading ? <p>Loading weather data...</p> : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {weather.map((w: any) => (
+                <div key={w.Item.Name} className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden">
+                  <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                  <div className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h2 className="text-2xl font-bold">{w.Item.Name}</h2>
+                        <p className="text-gray-500 dark:text-gray-400 capitalize">#{w.Rank} • {w.Item.Description}</p>
+                      </div>
+                      <img src={`https://openweathermap.org/img/wn/${w.Item.Icon}@4x.png`} alt="icon" className="w-20 h-20 -mt-4" />
+                    </div>
+
+                    <div className="mt-8 flex items-end gap-4">
+                      <div className="text-6xl font-light">{w.Item.TempC}°C</div>
+                      <div className="mb-2">
+                        <div className="text-5xl font-bold text-emerald-500">{w.Item.ComfortScore}</div>
+                        <div className="text-xs uppercase tracking-widest -mt-1">Comfort</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
