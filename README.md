@@ -576,7 +576,7 @@ Edit `backend/Api/cities.json` to add/remove cities:
 - [x] Frontend sorting & filtering
 - [x] Temperature trend graphs
 
-## 📞 Contact & Support
+
 
 
 
