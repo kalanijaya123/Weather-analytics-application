@@ -111,7 +111,78 @@ function App() {
       </header>
 
       {!isAuthenticated ? (
-        <div className="text-center py-32 text-2xl">Please log in to see the dashboard </div>
+        <div className="min-h-[80vh] flex items-center justify-center p-6">
+          <div className="max-w-2xl w-full bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-4xl font-bold mb-4">Welcome to Weather Comfort Index</h2>
+              <p className="text-gray-600 dark:text-gray-400 text-lg mb-6">
+                View real-time weather comfort rankings for cities worldwide
+              </p>
+            </div>
+
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-400 dark:border-yellow-600 rounded-xl p-6 mb-6">
+              <div className="flex items-start gap-3">
+                <div className="text-2xl">⚠️</div>
+                <div>
+                  <h3 className="font-bold text-yellow-800 dark:text-yellow-400 mb-2">Important: Use Your Personal Email</h3>
+                  <ul className="text-sm text-yellow-700 dark:text-yellow-500 space-y-1 list-disc list-inside">
+                    <li>This app requires authentication with your personal email</li>
+                    <li>Test credentials (careers@fidenz.com) are for demo purposes only</li>
+                    <li>If stuck on verification code screen: Close the Auth0 tab and click login again</li>
+                    <li>You can also clear your browser cache if issues persist</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <button 
+                onClick={() => loginWithRedirect()} 
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-lg font-bold text-xl transition-colors shadow-lg"
+              >
+                🔐 Log in with Auth0
+              </button>
+
+              <div className="text-center">
+                <p className="text-sm text-gray-500 dark:text-gray-500">
+                  Having trouble logging in?{' '}
+                  <button
+                    onClick={() => {
+                      localStorage.clear();
+                      sessionStorage.clear();
+                      window.location.reload();
+                    }}
+                    className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
+                  >
+                    Clear session and retry
+                  </button>
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <h4 className="font-semibold mb-3 text-center">Quick Tip: Stuck on Verification Code?</h4>
+              <ol className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+                <li className="flex gap-2">
+                  <span className="font-bold">1.</span>
+                  <span>Close or go back in the Auth0 login popup/tab</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-bold">2.</span>
+                  <span>Return to this page and click "Log in with Auth0" again</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-bold">3.</span>
+                  <span>Enter your correct email address this time</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-bold">4.</span>
+                  <span>Or use "Clear session and retry" button above</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
       ) : (
         <main className="p-6 max-w-7xl mx-auto">
           {loading ? <p>Loading weather data...</p> : (
@@ -162,16 +233,16 @@ function App() {
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={getFilteredAndSortedWeather()}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                      <XAxis 
-                        dataKey="item.name" 
-                        angle={-45} 
-                        textAnchor="end" 
+                      <XAxis
+                        dataKey="item.name"
+                        angle={-45}
+                        textAnchor="end"
                         height={100}
                         tick={{ fill: darkMode ? '#9ca3af' : '#374151', fontSize: 12 }}
                       />
                       <YAxis tick={{ fill: darkMode ? '#9ca3af' : '#374151' }} />
-                      <Tooltip 
-                        contentStyle={{ 
+                      <Tooltip
+                        contentStyle={{
                           backgroundColor: darkMode ? '#1f2937' : '#ffffff',
                           border: '1px solid #4b5563',
                           borderRadius: '0.5rem'
@@ -190,19 +261,19 @@ function App() {
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={getFilteredAndSortedWeather()}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                      <XAxis 
-                        dataKey="item.name" 
-                        angle={-45} 
-                        textAnchor="end" 
+                      <XAxis
+                        dataKey="item.name"
+                        angle={-45}
+                        textAnchor="end"
                         height={100}
                         tick={{ fill: darkMode ? '#9ca3af' : '#374151', fontSize: 12 }}
                       />
-                      <YAxis 
-                        domain={[0, 100]} 
+                      <YAxis
+                        domain={[0, 100]}
                         tick={{ fill: darkMode ? '#9ca3af' : '#374151' }}
                       />
-                      <Tooltip 
-                        contentStyle={{ 
+                      <Tooltip
+                        contentStyle={{
                           backgroundColor: darkMode ? '#1f2937' : '#ffffff',
                           border: '1px solid #4b5563',
                           borderRadius: '0.5rem'
@@ -210,10 +281,10 @@ function App() {
                         labelStyle={{ color: darkMode ? '#fff' : '#000' }}
                       />
                       <Legend wrapperStyle={{ color: darkMode ? '#9ca3af' : '#374151' }} />
-                      <Line 
-                        type="monotone" 
-                        dataKey="item.comfortScore" 
-                        stroke="#10b981" 
+                      <Line
+                        type="monotone"
+                        dataKey="item.comfortScore"
+                        stroke="#10b981"
                         strokeWidth={3}
                         name="Comfort Score"
                         dot={{ fill: '#10b981', r: 5 }}
