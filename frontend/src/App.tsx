@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 function App() {
-  const { loginWithRedirect, logout, isAuthenticated, isLoading, user } = useAuth0();
+  const { loginWithRedirect, logout, isAuthenticated, isLoading, user, error } = useAuth0();
   const [weather, setWeather] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
@@ -33,7 +33,7 @@ function App() {
 
   const getFilteredAndSortedWeather = () => {
     let filtered = weather.filter((w: any) => w?.item);
-    
+
     // Apply filter
     if (filterLevel !== 'all') {
       filtered = filtered.filter((w: any) => {
@@ -45,7 +45,7 @@ function App() {
         return true;
       });
     }
-    
+
     // Apply sorting
     const sorted = [...filtered].sort((a: any, b: any) => {
       if (sortBy === 'rank') return a.rank - b.rank;
@@ -54,11 +54,35 @@ function App() {
       if (sortBy === 'name') return a.item.name.localeCompare(b.item.name);
       return 0;
     });
-    
+
     return sorted;
   };
 
   if (isLoading) return <div className="text-center py-20 text-2xl">Loading...</div>;
+
+  // Display error if authentication fails
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white flex items-center justify-center">
+        <div className="max-w-md p-8 bg-white dark:bg-gray-900 rounded-2xl shadow-xl">
+          <div className="text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold mb-4">Authentication Error</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-2">{error.message}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-500 mb-6">
+              Please ensure you're using the correct credentials or contact support.
+            </p>
+            <button 
+              onClick={() => window.location.href = window.location.origin}
+              className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-indigo-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white">
@@ -96,8 +120,8 @@ function App() {
                 <div className="flex flex-wrap gap-6 items-center">
                   <div className="flex-1 min-w-[200px]">
                     <label className="block text-sm font-semibold mb-2">Sort By</label>
-                    <select 
-                      value={sortBy} 
+                    <select
+                      value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as any)}
                       className="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-indigo-500 focus:outline-none"
                     >
@@ -107,11 +131,11 @@ function App() {
                       <option value="name">City Name (A-Z)</option>
                     </select>
                   </div>
-                  
+
                   <div className="flex-1 min-w-[200px]">
                     <label className="block text-sm font-semibold mb-2">Filter by Comfort Level</label>
-                    <select 
-                      value={filterLevel} 
+                    <select
+                      value={filterLevel}
                       onChange={(e) => setFilterLevel(e.target.value as any)}
                       className="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-indigo-500 focus:outline-none"
                     >
@@ -131,28 +155,28 @@ function App() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {getFilteredAndSortedWeather().map((w: any) => (
-                <div key={w.item.name} className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden">
-                  <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
-                  <div className="p-6">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h2 className="text-2xl font-bold">{w.item.name}</h2>
-                        <p className="text-gray-500 dark:text-gray-400 capitalize">#{w.rank} • {w.item.description}</p>
+                  <div key={w.item.name} className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden">
+                    <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                    <div className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h2 className="text-2xl font-bold">{w.item.name}</h2>
+                          <p className="text-gray-500 dark:text-gray-400 capitalize">#{w.rank} • {w.item.description}</p>
+                        </div>
+                        <img src={`https://openweathermap.org/img/wn/${w.item.icon}@4x.png`} alt="icon" className="w-20 h-20 -mt-4" />
                       </div>
-                      <img src={`https://openweathermap.org/img/wn/${w.item.icon}@4x.png`} alt="icon" className="w-20 h-20 -mt-4" />
-                    </div>
 
-                    <div className="mt-8 flex items-end gap-4">
-                      <div className="text-6xl font-light">{w.item.tempC}°C</div>
-                      <div className="mb-2">
-                        <div className="text-5xl font-bold text-emerald-500">{w.item.comfortScore}</div>
-                        <div className="text-xs uppercase tracking-widest -mt-1">Comfort</div>
+                      <div className="mt-8 flex items-end gap-4">
+                        <div className="text-6xl font-light">{w.item.tempC}°C</div>
+                        <div className="mb-2">
+                          <div className="text-5xl font-bold text-emerald-500">{w.item.comfortScore}</div>
+                          <div className="text-xs uppercase tracking-widest -mt-1">Comfort</div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
             </>
           )}
         </main>
