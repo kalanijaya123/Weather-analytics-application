@@ -6,6 +6,10 @@ function App() {
   const { loginWithRedirect, logout, isAuthenticated, isLoading, user } = useAuth0();
   const [weather, setWeather] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -16,26 +20,44 @@ function App() {
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   if (isLoading) return <div className="text-center py-20 text-2xl">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white">
       <header className="bg-indigo-600 p-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Fidenz Weather Comfort Index</h1>
-        {isAuthenticated ? (
-          <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
-            className="bg-white text-indigo-600 px-6 py-2 rounded-lg font-semibold">
-            Logout
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+            aria-label="Toggle dark mode"
+          >
+            {darkMode ? '☀️ Light' : '🌙 Dark'}
           </button>
-        ) : (
-          <button onClick={() => loginWithRedirect()} className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-bold text-lg">
-            Log in with Auth0
-          </button>
-        )}
+          {isAuthenticated ? (
+            <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+              className="bg-white text-indigo-600 px-6 py-2 rounded-lg font-semibold">
+              Logout
+            </button>
+          ) : (
+            <button onClick={() => loginWithRedirect()} className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-bold text-lg">
+              Log in with Auth0
+            </button>
+          )}
+        </div>
       </header>
 
       {!isAuthenticated ? (
-        <div className="text-center py-32 text-2xl">Please log in to see the dashboard (test user: careers@fidenz.com)</div>
+        <div className="text-center py-32 text-2xl">Please log in to see the dashboard </div>
       ) : (
         <main className="p-6 max-w-7xl mx-auto">
           {loading ? <p>Loading weather data...</p> : (
