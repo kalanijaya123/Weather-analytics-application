@@ -1,6 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 
 function App() {
   const { loginWithRedirect, logout, isAuthenticated, isLoading, user, error } = useAuth0();
@@ -150,6 +151,75 @@ function App() {
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     Showing {getFilteredAndSortedWeather().length} cities
                   </div>
+                </div>
+              </div>
+
+              {/* Temperature & Comfort Score Graphs */}
+              <div className="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Temperature Bar Chart */}
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6">
+                  <h3 className="text-xl font-bold mb-4">Temperature by City (°C)</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={getFilteredAndSortedWeather()}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis 
+                        dataKey="item.name" 
+                        angle={-45} 
+                        textAnchor="end" 
+                        height={100}
+                        tick={{ fill: darkMode ? '#9ca3af' : '#374151', fontSize: 12 }}
+                      />
+                      <YAxis tick={{ fill: darkMode ? '#9ca3af' : '#374151' }} />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: darkMode ? '#1f2937' : '#ffffff',
+                          border: '1px solid #4b5563',
+                          borderRadius: '0.5rem'
+                        }}
+                        labelStyle={{ color: darkMode ? '#fff' : '#000' }}
+                      />
+                      <Legend wrapperStyle={{ color: darkMode ? '#9ca3af' : '#374151' }} />
+                      <Bar dataKey="item.tempC" fill="#6366f1" name="Temperature (°C)" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Comfort Score Line Chart */}
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6">
+                  <h3 className="text-xl font-bold mb-4">Comfort Score Trend</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={getFilteredAndSortedWeather()}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis 
+                        dataKey="item.name" 
+                        angle={-45} 
+                        textAnchor="end" 
+                        height={100}
+                        tick={{ fill: darkMode ? '#9ca3af' : '#374151', fontSize: 12 }}
+                      />
+                      <YAxis 
+                        domain={[0, 100]} 
+                        tick={{ fill: darkMode ? '#9ca3af' : '#374151' }}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: darkMode ? '#1f2937' : '#ffffff',
+                          border: '1px solid #4b5563',
+                          borderRadius: '0.5rem'
+                        }}
+                        labelStyle={{ color: darkMode ? '#fff' : '#000' }}
+                      />
+                      <Legend wrapperStyle={{ color: darkMode ? '#9ca3af' : '#374151' }} />
+                      <Line 
+                        type="monotone" 
+                        dataKey="item.comfortScore" 
+                        stroke="#10b981" 
+                        strokeWidth={3}
+                        name="Comfort Score"
+                        dot={{ fill: '#10b981', r: 5 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
 
