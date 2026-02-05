@@ -10,6 +10,8 @@ function App() {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
   });
+  const [sortBy, setSortBy] = useState<'rank' | 'score' | 'temp' | 'name'>('rank');
+  const [filterLevel, setFilterLevel] = useState<'all' | 'excellent' | 'good' | 'moderate' | 'poor'>('all');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -28,6 +30,33 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
+
+  const getFilteredAndSortedWeather = () => {
+    let filtered = weather.filter((w: any) => w?.item);
+    
+    // Apply filter
+    if (filterLevel !== 'all') {
+      filtered = filtered.filter((w: any) => {
+        const score = w.item.comfortScore;
+        if (filterLevel === 'excellent') return score >= 90;
+        if (filterLevel === 'good') return score >= 70 && score < 90;
+        if (filterLevel === 'moderate') return score >= 50 && score < 70;
+        if (filterLevel === 'poor') return score < 50;
+        return true;
+      });
+    }
+    
+    // Apply sorting
+    const sorted = [...filtered].sort((a: any, b: any) => {
+      if (sortBy === 'rank') return a.rank - b.rank;
+      if (sortBy === 'score') return b.item.comfortScore - a.item.comfortScore;
+      if (sortBy === 'temp') return b.item.tempC - a.item.tempC;
+      if (sortBy === 'name') return a.item.name.localeCompare(b.item.name);
+      return 0;
+    });
+    
+    return sorted;
+  };
 
   if (isLoading) return <div className="text-center py-20 text-2xl">Loading...</div>;
 
@@ -61,8 +90,47 @@ function App() {
       ) : (
         <main className="p-6 max-w-7xl mx-auto">
           {loading ? <p>Loading weather data...</p> : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {weather.filter((w: any) => w?.item).map((w: any) => (
+            <>
+              {/* Filters and Sorting */}
+              <div className="mb-6 bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6">
+                <div className="flex flex-wrap gap-6 items-center">
+                  <div className="flex-1 min-w-[200px]">
+                    <label className="block text-sm font-semibold mb-2">Sort By</label>
+                    <select 
+                      value={sortBy} 
+                      onChange={(e) => setSortBy(e.target.value as any)}
+                      className="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-indigo-500 focus:outline-none"
+                    >
+                      <option value="rank">Rank (Best First)</option>
+                      <option value="score">Comfort Score (High to Low)</option>
+                      <option value="temp">Temperature (Hot to Cold)</option>
+                      <option value="name">City Name (A-Z)</option>
+                    </select>
+                  </div>
+                  
+                  <div className="flex-1 min-w-[200px]">
+                    <label className="block text-sm font-semibold mb-2">Filter by Comfort Level</label>
+                    <select 
+                      value={filterLevel} 
+                      onChange={(e) => setFilterLevel(e.target.value as any)}
+                      className="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-indigo-500 focus:outline-none"
+                    >
+                      <option value="all">All Cities ({weather.filter((w: any) => w?.item).length})</option>
+                      <option value="excellent">Excellent (90-100)</option>
+                      <option value="good">Good (70-89)</option>
+                      <option value="moderate">Moderate (50-69)</option>
+                      <option value="poor">Poor (0-49)</option>
+                    </select>
+                  </div>
+
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Showing {getFilteredAndSortedWeather().length} cities
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {getFilteredAndSortedWeather().map((w: any) => (
                 <div key={w.item.name} className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden">
                   <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
                   <div className="p-6">
@@ -85,6 +153,7 @@ function App() {
                 </div>
               ))}
             </div>
+            </>
           )}
         </main>
       )}
