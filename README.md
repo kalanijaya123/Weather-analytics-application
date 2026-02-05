@@ -578,21 +578,8 @@ Edit `backend/Api/cities.json` to add/remove cities:
 
 ## 📞 Contact & Support
 
-**Project Repository**: [GitHub Link]  
-**Submitted For**: Fidenz Technologies Full Stack Developer Position  
-**Date**: February 2026
 
-### Team Access Granted
 
-- kanishka.d@fidenz.com
-- srimal.w@fidenz.com
-- narada.a@fidenz.com
-- amindu.l@fidenz.com
-- niroshanan.s@fidenz.com
-
-## 📄 License
-
-This project is part of the Fidenz Technologies technical assessment and is for evaluation purposes only.
 
 ---
 
