@@ -193,7 +193,7 @@ public class ComfortIndexCalculatorTests
         int scoreBadHumidity = ComfortIndexCalculator.Calculate(optimalTemp, badHumidity, optimalWind);
 
         // Assert: Bad temperature should impact score more than bad humidity (55% vs 30% weight)
-        Assert.True(scoreBadTemp < scoreBadHumidity, 
+        Assert.True(scoreBadTemp < scoreBadHumidity,
             $"Temperature should have more impact than humidity. BadTemp score: {scoreBadTemp}, BadHumidity score: {scoreBadHumidity}");
     }
 
@@ -212,7 +212,7 @@ public class ComfortIndexCalculatorTests
         int scoreBadHumidity = ComfortIndexCalculator.Calculate(optimalTemp, badHumidity, optimalWind);
 
         // Assert: Bad humidity should impact score more than bad wind (30% vs 15% weight)
-        Assert.True(scoreBadWind > scoreBadHumidity, 
+        Assert.True(scoreBadWind > scoreBadHumidity,
             $"Wind should have less impact than humidity. BadWind score: {scoreBadWind}, BadHumidity score: {scoreBadHumidity}");
     }
 

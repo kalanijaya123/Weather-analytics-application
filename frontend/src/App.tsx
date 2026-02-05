@@ -72,7 +72,7 @@ function App() {
             <p className="text-sm text-gray-500 dark:text-gray-500 mb-6">
               Please ensure you're using the correct credentials or contact support.
             </p>
-            <button 
+            <button
               onClick={() => window.location.href = window.location.origin}
               className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-indigo-700 transition-colors"
             >
