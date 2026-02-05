@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
+using Api;
 
 internal class Program
 {
@@ -19,19 +20,6 @@ internal class Program
         // Load cities.json 
         var citiesJson = await File.ReadAllTextAsync("cities.json");
         var cities = JsonSerializer.Deserialize<List<City>>(citiesJson) ?? new();
-
-
-        // Comfort Index – backend only 
-        int CalculateComfortIndex(double tempC, int humidity, double windKmh)
-        {
-            // Formula: Temperature 55%, Humidity 30%, Wind 15%
-            double tempScore = Math.Max(0, 100 - Math.Abs(tempC - 22) * 5);
-            double humScore = Math.Max(0, 100 - Math.Abs(humidity - 50) * 2.5);
-            double windScore = Math.Max(0, 100 - Math.Abs(windKmh - 12) * 4);
-
-            double score = tempScore * 0.55 + humScore * 0.30 + windScore * 0.15;
-            return (int)Math.Clamp(Math.Round(score), 0, 100);
-        }
 
         // Main endpoint (PDF: fetch, compute, rank, cache)
         app.MapGet("/api/weather", async (IMemoryCache cache) =>
@@ -67,7 +55,7 @@ internal class Program
                 var tempC = raw.main.temp;
                 var humidity = raw.main.humidity;
                 var windKmh = raw.wind.speed * 3.6;
-                var score = CalculateComfortIndex(tempC, humidity, windKmh);
+                var score = ComfortIndexCalculator.Calculate(tempC, humidity, windKmh);
 
                 results.Add(new
                 {
